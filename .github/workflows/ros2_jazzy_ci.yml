@@ -31,7 +31,7 @@ jobs:
         run: |
           cd ../ros_ws
           rosdep update
-          sudo apt install -y python3-ament-package
+          sudo apt-get install -y python3-ament-package
           rosdep install --from-paths src -y --ignore-src --rosdistro jazzy
 
       # 5. Build with colcon
