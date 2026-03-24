@@ -1,0 +1,41 @@
+name: ROS2 Rolling CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up ROS 2 Rolling
+      - name: Set up ROS 2 Rolling
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: rolling
+
+      # 3. Create workspace & copy files from the clone repo
+      - name: Create workspace & copy files
+        run: |
+          cd ..
+          mkdir -p ros_ws/src
+          cp -r $GITHUB_WORKSPACE ros_ws/src
+
+      # 4. Install dependencies with rosdep
+      - name: Install dependencies
+        run: |
+          cd ../ros_ws
+          rosdep update
+          rosdep install --from-paths src -y --ignore-src --rosdistro rolling
+
+      # 5. Build with colcon
+      - name: Build with colcon
+        run: |
+          cd ../ros_ws
+          source /opt/ros/rolling/setup.bash
+          colcon build
