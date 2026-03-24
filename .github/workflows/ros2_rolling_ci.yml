@@ -26,17 +26,17 @@ jobs:
           mkdir -p ros_ws/src
           cp -r $GITHUB_WORKSPACE ros_ws/src
 
-      # 4. Install dependencies with rosdep
+      # 4. Install dependencies with rosdep &
       - name: Install dependencies
         run: |
           cd ../ros_ws
           rosdep update
+          apt install -y python3-ament-package
           rosdep install --from-paths src -y --ignore-src --rosdistro rolling
 
       # 5. Build with colcon
       - name: Build with colcon
         run: |
-          source /opt/ros/jazzy/setup.bash
           cd ../ros_ws
           source /opt/ros/rolling/setup.bash
           colcon build
