@@ -30,8 +30,9 @@ jobs:
       - name: Install dependencies
         run: |
           cd ../ros_ws
+          sudo apt update
+          sudo apt install -y python3-ament-package
           rosdep update
-          sudo apt-get install -y python3-ament-package
           rosdep install --from-paths src -y --ignore-src --rosdistro rolling
 
       # 5. Build with colcon
