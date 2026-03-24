@@ -1,0 +1,68 @@
+# Adaptive Admittance Controller
+
+ToDo
+
+## Features
+
+ToDo
+
+## Configuration
+
+The next lines show a snippet of the *YAML* file defining the configuration of the `admittance_controller/AdaptiveAdmittanceController` controller for a UR16e robot:
+
+```yaml
+controller_manager:
+  ros__parameters:
+    use_sim_time: true
+    update_rate: 100  # Hz
+
+    ur_adaptive_admittance_controller:
+      type: admittance_controller/AdaptiveAdmittanceController
+
+ur_adaptive_admittance_controller:
+  ros__parameters:
+    is_chainable: true
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    state_interfaces:
+      - position
+      - velocity
+    command_interfaces:
+      - position
+    chainable_command_interfaces:
+      - position
+    open_loop: true
+    feedback_active: false
+    kinematics:
+      world_link: world
+      base_link: base_link
+      tip_link: tool0
+    ft_sensor:
+      name: ur_tcp_fts_sensor
+      frame_id: ur_tool0
+      filter_alpha: 0.025
+      remove_bias: true
+    tool:
+      mass: 2.0
+      CoG: [0.0, 0.0, 0.050]
+    admittance_control:
+      compliance_frame:
+        translation: [0.0, 0.0, 0.0]
+        rotation: [0.0, 0.0, 0.0, 1.0]
+      stiffness: [5000.0, 5000.0, 500.0, 5000.0, 5000.0, 5000.0]
+      damping: [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+      mass: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      wrench_command: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      active_axes: [true, true, true, true, true, true]
+```
+
+ToDo
+
+## License
+
+The *adaptive_admittance_controller* repository has an Apache 2.0 license, as found in the [LICENSE](LICENSE) file.
