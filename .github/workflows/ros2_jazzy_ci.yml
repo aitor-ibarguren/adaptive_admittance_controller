@@ -36,6 +36,7 @@ jobs:
       # 5. Build with colcon
       - name: Build with colcon
         run: |
+          source /opt/ros/jazzy/setup.bash
           cd ../ros_ws
           source /opt/ros/jazzy/setup.bash
           colcon build
