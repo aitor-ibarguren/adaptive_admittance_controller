@@ -34,4 +34,5 @@ jobs:
           rosdep update
           rosdep install --from-paths src -y --ignore-src --rosdistro jazzy
           source /opt/ros/jazzy/setup.bash
+          export PYTHONPATH=$PYTHONPATH:/opt/ros/jazzy/lib/python3.12/site-packages
           colcon build
