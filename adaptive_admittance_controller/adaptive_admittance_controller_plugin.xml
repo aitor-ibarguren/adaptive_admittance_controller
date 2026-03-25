@@ -1,0 +1,10 @@
+<library path="adaptive_admittance_controller">
+  <class name="admittance_controller/AdaptiveAdmittanceController" type="admittance_controller::AdaptiveAdmittanceController" base_class_type="controller_interface::ChainableControllerInterface">
+    <description>
+      A ROS2 admittance controller with capability to modify and adapt admittance parameters dynamically.
+    </description>
+  </class>
+</library>
+
+
+
