@@ -676,7 +676,7 @@ void AdaptiveAdmittanceController::admittance_params_callback(
   admittance_params_.wrench_command(4) = msg->wrench_command.torque.y;
   admittance_params_.wrench_command(5) = msg->wrench_command.torque.z;
   // Active axes
-  msg->active_axes = msg->active_axes;
+  admittance_params_.active_axes = msg->active_axes;
 
   // Update admittance control law
   admittance_control_law_->update_admittance_parameters(admittance_params_);
