@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd ../ros_ws
-          python3 -m pip install --user ament-package ament-cmake colcon-common-extensions --break-system-packages
+          sudo apt-get update
           rosdep update
           rosdep install --from-paths src -y --ignore-src --rosdistro jazzy
 
