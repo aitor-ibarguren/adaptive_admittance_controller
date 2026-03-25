@@ -19,10 +19,19 @@ jobs:
         with:
           required-ros-distributions: jazzy
 
-      # 3. Build with colcon
-      - name: Build with colcon
-        uses: ros-tooling/action-ros-ci@v0.3
-        with:
-          target-ros2-distro: jazzy
-          # This ensures dependencies in your repo are built in the right order
-          vcs-repo-file-url: ""
+      # 3. Create workspace & copy files from the clone repo
+      - name: Create workspace & copy files
+        run: |
+          cd ..
+          mkdir -p ros_ws/src
+          cp -r $GITHUB_WORKSPACE ros_ws/src
+
+      # 4. Install dependencies with rosdep
+      - name: Install dependencies
+        run: |
+          cd ../ros_ws
+          sudo apt-get update
+          rosdep update
+          rosdep install --from-paths src -y --ignore-src --rosdistro jazzy
+          source /opt/ros/jazzy/setup.bash
+          colcon build
