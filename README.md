@@ -1,10 +1,21 @@
 # Adaptive Admittance Controller
 
-ToDo
+<p>
+  <a href="https://github.com/aitor-ibarguren/adaptive_admittance_controller/actions/workflows/ros2_jazzy_ci.yml">
+    <img src="https://github.com/aitor-ibarguren/adaptive_admittance_controller/actions/workflows/ros2_jazzy_ci.yml/badge.svg" alt="Build">
+  </a>
+</p>
+
+The `admittance_controller/AdaptiveAdmittanceController` is a chainable ROS2 controller designed to implement admittance control based on the wrench received from a force/torque sensor. This controller extendens the `admittance_controller/AdmittanceController` controller allowing the modification of its multiple parameters via topic with some additional features for a smooth admittance parameter modification.
 
 ## Features
 
-ToDo
+- Chainable ROS2 controller designed to be placed as the last controller (e.g. after a *joint trajectory controller*). 
+- Accepts admittance parameters (stiffness, damping, mass, wrench command, active axes, and compliance frame) as well as tool parameters (mass and center-of-gravity) through topics.
+- Includes a low-pass filter to smooth the wrench values received from the force/torque sensor. 
+- The admittance control law calculates a twist value, which is internally computed to generate joint positions using **KDL** to generate the Jacobian matrix and **Eigen** to calculate the pseude-inverse using *SVD*.
+- Allows an **open-loop** mode in which the previously commanded joint positions are used instead of the joint positions from the state interfaces, avoiding the injection of hardware feedback latency and transport delays into the command generation loop.
+- The controller includes the option to **enable a feedback topic** the the admittance parameters and wrnech and twist values are published.
 
 ## Configuration
 
@@ -60,8 +71,6 @@ ur_adaptive_admittance_controller:
       wrench_command: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
       active_axes: [true, true, true, true, true, true]
 ```
-
-ToDo
 
 ## License
 
