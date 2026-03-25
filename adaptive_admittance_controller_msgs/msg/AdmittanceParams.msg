@@ -6,3 +6,5 @@ float64[] mass
 geometry_msgs/Wrench wrench_command
 
 bool[] active_axes
+
+bool recalculate_wrench_bias

@@ -649,6 +649,15 @@ controller_interface::return_type AdaptiveAdmittanceController::update_reference
 void AdaptiveAdmittanceController::admittance_params_callback(
   const adaptive_admittance_controller_msgs::msg::AdmittanceParams::SharedPtr msg)
 {
+  // Check if controller active
+  auto state_id = this->get_node()->get_current_state().id();
+  if (state_id == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(), "Can't accept admittance parameters: Controller is not active");
+    return;
+  }
+
   // Check arrays' size
   if (
     msg->stiffness.size() != 6 || msg->damping.size() != 6 || msg->mass.size() != 6 ||
@@ -683,17 +692,40 @@ void AdaptiveAdmittanceController::admittance_params_callback(
 
   // Manage feedback
   if (feedback_active_) feedback_msg_.admittance_params = *msg;
+
+  // Recalculate bias if required
+  if (msg->recalculate_wrench_bias && params_.ft_sensor.remove_bias)
+  {
+    wrench_bias_ =
+      clear_tool_wrench(wrench_, tool_mass_, tool_cog_, base_link_H_tip_, tip_H_ft_sensor_);
+  }
 }
 
 void AdaptiveAdmittanceController::tool_params_callback(
   const adaptive_admittance_controller_msgs::msg::ToolParams::SharedPtr msg)
 {
+  // Check if controller active
+  auto state_id = this->get_node()->get_current_state().id();
+  if (state_id == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(), "Can't accept admittance parameters: Controller is not active");
+    return;
+  }
+
   // Update tool data
   tool_mass_ = msg->mass;
   tf2::fromMsg(msg->cog, tool_cog_);
 
   // Manage feedback
   if (feedback_active_) feedback_msg_.tool_params = *msg;
+
+  // Recalculate bias if required
+  if (msg->recalculate_wrench_bias && params_.ft_sensor.remove_bias)
+  {
+    wrench_bias_ =
+      clear_tool_wrench(wrench_, tool_mass_, tool_cog_, base_link_H_tip_, tip_H_ft_sensor_);
+  }
 }
 
 bool AdaptiveAdmittanceController::get_joint_limits(const std::vector<std::string> & joint_names)
@@ -854,7 +886,7 @@ void AdaptiveAdmittanceController::read_joint_state(
       else
       {
         joint_positions[idx_pos] = joint_position_opt.value();
-        // joint_position_commands_[idx_pos] = joint_position_opt.value();
+
         idx_pos++;
       }
     }
