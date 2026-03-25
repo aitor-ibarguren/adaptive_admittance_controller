@@ -33,6 +33,13 @@ jobs:
           sudo apt-get update
           rosdep update
           rosdep install --from-paths src -y --ignore-src --rosdistro jazzy
+
+      # 5. Build with colcon
+      - name: Build with colcon
+        run: |
+          cd ../ros_ws
           source /opt/ros/jazzy/setup.bash
           export PYTHONPATH=$PYTHONPATH:/opt/ros/jazzy/lib/python3.12/site-packages
-          colcon build
+          colcon build --packages-select adaptive_admittance_controller_msgs
+          source install/setup.bash
+          colcon build --packages-select adaptive_admittance_controller
