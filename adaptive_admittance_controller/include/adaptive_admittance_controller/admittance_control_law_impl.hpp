@@ -15,6 +15,9 @@
 #ifndef ADMITTANCE_CONTROLLER__ADMITTANCE_CONTROL_LAW_IMPL_HPP_
 #define ADMITTANCE_CONTROLLER__ADMITTANCE_CONTROL_LAW_IMPL_HPP_
 
+// Eigen
+#include "Eigen/Geometry"
+
 namespace admittance_controller
 {
 struct AdmittanceParams
