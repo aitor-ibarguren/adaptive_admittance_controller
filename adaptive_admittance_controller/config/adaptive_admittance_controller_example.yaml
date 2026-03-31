@@ -38,3 +38,5 @@ ur_adaptive_admittance_controller:
       mass: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
       wrench_command: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
       active_axes: [true, true, true, true, true, true]
+      ramp_active: true
+      ramp_time: 1.0

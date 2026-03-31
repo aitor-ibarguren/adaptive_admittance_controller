@@ -214,6 +214,10 @@ controller_interface::CallbackReturn AdaptiveAdmittanceController::on_configure(
     params_.admittance_control.wrench_command.size());
   // Active axes
   admittance_params_.active_axes = params_.admittance_control.active_axes;
+  // Ramp
+  admittance_params_.ramp_active = params_.admittance_control.ramp_active;
+  if (admittance_params_.ramp_active)
+    admittance_params_.ramp_time = params_.admittance_control.ramp_time;
 
   // Feedback
   feedback_active_ = params_.feedback_active;
@@ -303,6 +307,15 @@ controller_interface::CallbackReturn AdaptiveAdmittanceController::on_configure(
     admittance_params_.active_axes[3] ? "True" : "False",
     admittance_params_.active_axes[4] ? "True" : "False",
     admittance_params_.active_axes[5] ? "True" : "False");
+  if (admittance_params_.ramp_active)
+  {
+    RCLCPP_INFO(get_node()->get_logger(), "║  ├─ Ramp active:  True");
+    RCLCPP_INFO(get_node()->get_logger(), "║  ╰─ Ramp time:  %f", admittance_params_.ramp_time);
+  }
+  else
+  {
+    RCLCPP_INFO(get_node()->get_logger(), "║  ╰─ Ramp active:  False");
+  }
   RCLCPP_INFO(
     get_node()->get_logger(), "╚═ Feedback: %s", feedback_active_ ? "ACTIVE" : "INACTIVE");
 
@@ -397,6 +410,7 @@ controller_interface::CallbackReturn AdaptiveAdmittanceController::on_activate(
 
   // Admittance control law
   admittance_control_law_ = std::make_shared<AdmittanceControlLaw>(admittance_params_);
+  update_admittance_params_ = false;
 
   /// Log
   // Joint positions
@@ -526,6 +540,13 @@ Eigen::VectorXd AdaptiveAdmittanceController::calculate_next_joint_positions(
 controller_interface::return_type AdaptiveAdmittanceController::update_and_write_commands(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
 {
+  // Update admittance params if required
+  if (update_admittance_params_)
+  {
+    admittance_control_law_->update_admittance_parameters(admittance_params_);
+    update_admittance_params_ = false;
+  }
+
   // Get joint state
   if (open_loop_)
   {
@@ -688,7 +709,8 @@ void AdaptiveAdmittanceController::admittance_params_callback(
   admittance_params_.active_axes = msg->active_axes;
 
   // Update admittance control law
-  admittance_control_law_->update_admittance_parameters(admittance_params_);
+  update_admittance_params_ = true;
+  // admittance_control_law_->update_admittance_parameters(admittance_params_);
 
   // Manage feedback
   if (feedback_active_) feedback_msg_.admittance_params = *msg;
@@ -698,6 +720,10 @@ void AdaptiveAdmittanceController::admittance_params_callback(
   {
     wrench_bias_ =
       clear_tool_wrench(wrench_, tool_mass_, tool_cog_, base_link_H_tip_, tip_H_ft_sensor_);
+
+    RCLCPP_INFO(
+      get_node()->get_logger(), "New F/T sensor bias: [%f, %f, %f, %f, %f, %f]", wrench_bias_(0),
+      wrench_bias_(1), wrench_bias_(2), wrench_bias_(3), wrench_bias_(4), wrench_bias_(5));
   }
 }
 
@@ -725,6 +751,10 @@ void AdaptiveAdmittanceController::tool_params_callback(
   {
     wrench_bias_ =
       clear_tool_wrench(wrench_, tool_mass_, tool_cog_, base_link_H_tip_, tip_H_ft_sensor_);
+
+    RCLCPP_INFO(
+      get_node()->get_logger(), "New F/T sensor bias: [%f, %f, %f, %f, %f, %f]", wrench_bias_(0),
+      wrench_bias_(1), wrench_bias_(2), wrench_bias_(3), wrench_bias_(4), wrench_bias_(5));
   }
 }
 

@@ -91,7 +91,7 @@ adaptive_admittance_controller:
       description: "Specifies the low-pass filter alpha."
     }
 
-    remove_bias:  {
+    remove_bias: {
       type: bool,
       default_value: true,
       description: "Specifies if the bias of the F/T sensor it estimated and removed from the received sensor data."
@@ -172,4 +172,16 @@ adaptive_admittance_controller:
       validation: {
         fixed_size<>: 6
       }
+    }
+
+    ramp_active: {
+      type: bool,
+      default_value: true,
+      description: "Specifies if the admittance parameters' modification are gradual using a ramp."
+    }
+
+    ramp_time: {
+      type: double,
+      default_value: 1.0,
+      description: "Specifies the time (in seconds) to reach the new admittance parameters when modified."
     }
