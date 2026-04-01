@@ -144,6 +144,7 @@ protected:
   // Admittance params
   Eigen::Vector3d gravity_;
 
+  bool update_admittance_params_;
   AdmittanceParams admittance_params_;
 
   std::shared_ptr<admittance_controller::AdmittanceControlLaw> admittance_control_law_;

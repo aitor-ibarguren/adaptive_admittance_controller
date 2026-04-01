@@ -91,7 +91,7 @@ adaptive_admittance_controller:
       description: "Specifies the low-pass filter alpha."
     }
 
-    remove_bias:  {
+    remove_bias: {
       type: bool,
       default_value: true,
       description: "Specifies if the bias of the F/T sensor it estimated and removed from the received sensor data."
@@ -169,6 +169,45 @@ adaptive_admittance_controller:
     active_axes: {
       type: bool_array,
       description: "Specifies the active axes [x, y, z, rx, ry, rz] in the admittance calculation.",
+      validation: {
+        fixed_size<>: 6
+      }
+    }
+
+    ramp_active: {
+      type: bool,
+      default_value: true,
+      description: "Specifies if the admittance parameters' modification are gradual using a ramp."
+    }
+
+    ramp_time: {
+      type: double,
+      default_value: 1.0,
+      description: "Specifies the time (in seconds) to reach the new admittance parameters when modified."
+    }
+
+    transition_ramp_stiffness: {
+      type: double_array,
+      default_value: [5000.0, 5000.0, 5000.0, 500.0, 500.0, 500.0],
+      description: "During the axis activation/deactivation transition, the stiffness ramp starts or ends with these values",
+      validation: {
+        fixed_size<>: 6
+      }
+    }
+
+    transition_ramp_damping: {
+      type: double_array,
+      default_value: [100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
+      description: "During the axis activation/deactivation transition, the damping ramp starts or ends with these values",
+      validation: {
+        fixed_size<>: 6
+      }
+    }
+
+    transition_ramp_mass: {
+      type: double_array,
+      default_value: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+      description: "During the axis activation/deactivation transition, the damping ramp starts or ends with these values",
       validation: {
         fixed_size<>: 6
       }
