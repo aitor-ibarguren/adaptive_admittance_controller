@@ -10,12 +10,13 @@ The `admittance_controller/AdaptiveAdmittanceController` is a chainable ROS2 con
 
 ## Features
 
-- Chainable ROS2 controller designed to be placed as the last controller (e.g. after a *joint trajectory controller*). 
+- Chainable ROS2 controller designed to be placed as the last controller (e.g., after a *joint trajectory controller*).
 - Accepts admittance parameters (stiffness, damping, mass, wrench command, active axes, and compliance frame) as well as tool parameters (mass and center-of-gravity) through topics.
-- Includes a low-pass filter to smooth the wrench values received from the force/torque sensor. 
-- The admittance control law calculates a twist value, which is internally computed to generate joint positions using **KDL** to generate the Jacobian matrix and **Eigen** to calculate the pseude-inverse using *SVD*.
+- Includes a low-pass filter to smooth the wrench values received from the force/torque sensor.
+- The admittance control law calculates a twist value, which is internally computed to generate joint positions using **KDL** to generate the Jacobian matrix and **Eigen** to calculate the pseudo-inverse using *SVD*.
 - Allows an **open-loop** mode in which the previously commanded joint positions are used instead of the joint positions from the state interfaces, avoiding the injection of hardware feedback latency and transport delays into the command generation loop.
-- The controller includes the option to **enable a feedback topic** the the admittance parameters and wrnech and twist values are published.
+- The controller enables the smoothing of admittance parameter modifications by adding a ramp to modify the parameters gradually (e.g., reducing the stiffness from 5000 to 500 over 1 second). These ramps are also applied when the admittance controller axes are activated/deactivated.
+- The controller includes the option to **enable a feedback topic** of the admittance parameters, and wrench and twist values are published.
 
 ## Configuration
 
@@ -70,6 +71,11 @@ ur_adaptive_admittance_controller:
       mass: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
       wrench_command: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
       active_axes: [true, true, true, true, true, true]
+      ramp_active: true
+      ramp_time: 1.0
+      transition_ramp_stiffness: [5000.0, 5000.0, 5000.0, 500.0, 500.0, 500.0]
+      transition_ramp_damping: [100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+      transition_ramp_mass: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 ```
 
 ## License

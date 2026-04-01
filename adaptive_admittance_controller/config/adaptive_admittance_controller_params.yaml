@@ -185,3 +185,30 @@ adaptive_admittance_controller:
       default_value: 1.0,
       description: "Specifies the time (in seconds) to reach the new admittance parameters when modified."
     }
+
+    transition_ramp_stiffness: {
+      type: double_array,
+      default_value: [5000.0, 5000.0, 5000.0, 500.0, 500.0, 500.0],
+      description: "During the axis activation/deactivation transition, the stiffness ramp starts or ends with these values",
+      validation: {
+        fixed_size<>: 6
+      }
+    }
+
+    transition_ramp_damping: {
+      type: double_array,
+      default_value: [100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
+      description: "During the axis activation/deactivation transition, the damping ramp starts or ends with these values",
+      validation: {
+        fixed_size<>: 6
+      }
+    }
+
+    transition_ramp_mass: {
+      type: double_array,
+      default_value: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+      description: "During the axis activation/deactivation transition, the damping ramp starts or ends with these values",
+      validation: {
+        fixed_size<>: 6
+      }
+    }

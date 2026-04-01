@@ -34,29 +34,34 @@ struct AdmittanceParams
   // Ramp
   bool ramp_active;
   double ramp_time;
+
+  Eigen::VectorXd transition_ramp_stiffness;
+  Eigen::VectorXd transition_ramp_damping;
+  Eigen::VectorXd transition_ramp_mass;
 };
 
 class AdmittanceControlLaw
 {
 public:
-  AdmittanceControlLaw(const AdmittanceParams & admitance_params)
+  AdmittanceControlLaw(const AdmittanceParams & admittance_params)
   {
     // Stiffness
     K_.setZero();
-    K_.diagonal() = admitance_params.stiffness;
+    K_.diagonal() = admittance_params.stiffness;
     // Damping
     D_.setZero();
-    D_.diagonal() = admitance_params.damping;
+    D_.diagonal() = admittance_params.damping;
     // Mass
     M_.setZero();
-    M_.diagonal() = admitance_params.mass;
+    M_.diagonal() = admittance_params.mass;
     // Mass inverse
     M_inv_ = M_.inverse();
     // Wrench command
-    wrench_command_ = admitance_params.wrench_command;
+    wrench_command_ = admittance_params.wrench_command;
     // Active axes
     active_axes_.setZero();
-    for (size_t i = 0; i < 6; i++) active_axes_(i, i) = admitance_params.active_axes[i] ? 1.0 : 0.0;
+    for (size_t i = 0; i < 6; i++)
+      active_axes_(i, i) = admittance_params.active_axes[i] ? 1.0 : 0.0;
 
     // Control values
     X_ = Eigen::VectorXd::Zero(6);
@@ -64,49 +69,79 @@ public:
     admittance_velocity_ = Eigen::VectorXd::Zero(6);
 
     // Ramp
-    ramp_active_ = admitance_params.ramp_active;
+    ramp_active_ = admittance_params.ramp_active;
     if (ramp_active_)
     {
-      ramp_time_ = admitance_params.ramp_time;
+      ramp_time_ = admittance_params.ramp_time;
+
+      transition_ramp_stiffness_ = admittance_params.transition_ramp_stiffness;
+      transition_ramp_damping_ = admittance_params.transition_ramp_damping;
+      transition_ramp_mass_ = admittance_params.transition_ramp_mass;
+
       ramp_goal_reached_ = true;
     }
   }
 
-  void update_admittance_parameters(const AdmittanceParams & admitance_params)
+  void update_admittance_parameters(const AdmittanceParams & admittance_params)
   {
     if (ramp_active_)
     {
       // Ramp params
-      target_admittance_params_ = admitance_params;
+      target_admittance_params_ = admittance_params;
       ramp_goal_reached_ = false;
       ramp_time_start_ = std::chrono::system_clock::now();
 
+      // Manage axes activation/deactivation ramp
+      for (int i = 0; i < 6; i++)
+      {
+        // Check if change in axis
+        if (target_admittance_params_.active_axes[i] != static_cast<bool>(active_axes_(i, i)))
+        {
+          // Activation - Start from transition values
+          if (target_admittance_params_.active_axes[i])
+          {
+            K_(i, i) = transition_ramp_stiffness_(i);
+            D_(i, i) = transition_ramp_damping_(i);
+            M_(i, i) = transition_ramp_mass_(i);
+            M_inv_ = M_.inverse();
+          }
+          else
+          // Deactivation - End in transition values
+          {
+            target_admittance_params_.stiffness(i) = transition_ramp_stiffness_(i);
+            target_admittance_params_.damping(i) = transition_ramp_damping_(i);
+            target_admittance_params_.mass(i) = transition_ramp_mass_(i);
+          }
+        }
+      }
+
+      // Calculate difference to manage ramps
       stiffness_diff_ = target_admittance_params_.stiffness - K_.diagonal();
       damping_diff_ = target_admittance_params_.damping - D_.diagonal();
       mass_diff_ = target_admittance_params_.mass - M_.diagonal();
 
       // Wrench command
-      wrench_command_ = admitance_params.wrench_command;
+      wrench_command_ = admittance_params.wrench_command;
     }
     else
     {
       // Stiffness
       K_.setZero();
-      K_.diagonal() = admitance_params.stiffness;
+      K_.diagonal() = admittance_params.stiffness;
       // Damping
       D_.setZero();
-      D_.diagonal() = admitance_params.damping;
+      D_.diagonal() = admittance_params.damping;
       // Mass
       M_.setZero();
-      M_.diagonal() = admitance_params.mass;
+      M_.diagonal() = admittance_params.mass;
       // Mass inverse
       M_inv_ = M_.inverse();
       // Wrench command
-      wrench_command_ = admitance_params.wrench_command;
+      wrench_command_ = admittance_params.wrench_command;
       // Active axes
       active_axes_.setZero();
       for (size_t i = 0; i < 6; i++)
-        active_axes_(i, i) = admitance_params.active_axes[i] ? 1.0 : 0.0;
+        active_axes_(i, i) = admittance_params.active_axes[i] ? 1.0 : 0.0;
     }
   }
 
@@ -132,7 +167,15 @@ public:
     M_inv_ = M_.inverse();
 
     // Check if ramp goal reached
-    if (time_factor == 1.0) ramp_goal_reached_ = true;
+    if (time_factor == 1.0)
+    {
+      // Active axes
+      active_axes_.setZero();
+      for (size_t i = 0; i < 6; i++)
+        active_axes_(i, i) = target_admittance_params_.active_axes[i] ? 1.0 : 0.0;
+
+      ramp_goal_reached_ = true;
+    }
   }
 
   Eigen::VectorXd update(
@@ -186,6 +229,10 @@ private:
   Eigen::VectorXd current_stiffness, stiffness_diff_;
   Eigen::VectorXd current_damping, damping_diff_;
   Eigen::VectorXd current_mass, mass_diff_;
+
+  Eigen::VectorXd transition_ramp_stiffness_;
+  Eigen::VectorXd transition_ramp_damping_;
+  Eigen::VectorXd transition_ramp_mass_;
 };
 
 }  // namespace admittance_controller

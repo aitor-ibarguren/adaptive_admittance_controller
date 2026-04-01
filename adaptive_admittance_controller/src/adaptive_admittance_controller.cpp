@@ -217,7 +217,18 @@ controller_interface::CallbackReturn AdaptiveAdmittanceController::on_configure(
   // Ramp
   admittance_params_.ramp_active = params_.admittance_control.ramp_active;
   if (admittance_params_.ramp_active)
+  {
     admittance_params_.ramp_time = params_.admittance_control.ramp_time;
+    admittance_params_.transition_ramp_stiffness = Eigen::Map<Eigen::VectorXd>(
+      params_.admittance_control.transition_ramp_stiffness.data(),
+      params_.admittance_control.transition_ramp_stiffness.size());
+    admittance_params_.transition_ramp_damping = Eigen::Map<Eigen::VectorXd>(
+      params_.admittance_control.transition_ramp_damping.data(),
+      params_.admittance_control.transition_ramp_damping.size());
+    admittance_params_.transition_ramp_mass = Eigen::Map<Eigen::VectorXd>(
+      params_.admittance_control.transition_ramp_mass.data(),
+      params_.admittance_control.transition_ramp_mass.size());
+  }
 
   // Feedback
   feedback_active_ = params_.feedback_active;
@@ -310,7 +321,25 @@ controller_interface::CallbackReturn AdaptiveAdmittanceController::on_configure(
   if (admittance_params_.ramp_active)
   {
     RCLCPP_INFO(get_node()->get_logger(), "║  ├─ Ramp active:  True");
-    RCLCPP_INFO(get_node()->get_logger(), "║  ╰─ Ramp time:  %f", admittance_params_.ramp_time);
+    RCLCPP_INFO(get_node()->get_logger(), "║  ├─ Ramp time:  %f", admittance_params_.ramp_time);
+    RCLCPP_INFO(
+      get_node()->get_logger(), "║  ├─ Transition ramp stiffness: [%f, %f, %f, %f, %f, %f]",
+      admittance_params_.transition_ramp_stiffness(0),
+      admittance_params_.transition_ramp_stiffness(1),
+      admittance_params_.transition_ramp_stiffness(2),
+      admittance_params_.transition_ramp_stiffness(3),
+      admittance_params_.transition_ramp_stiffness(4),
+      admittance_params_.transition_ramp_stiffness(5));
+    RCLCPP_INFO(
+      get_node()->get_logger(), "║  ├─ Transition ramp damping: [%f, %f, %f, %f, %f, %f]",
+      admittance_params_.transition_ramp_damping(0), admittance_params_.transition_ramp_damping(1),
+      admittance_params_.transition_ramp_damping(2), admittance_params_.transition_ramp_damping(3),
+      admittance_params_.transition_ramp_damping(4), admittance_params_.transition_ramp_damping(5));
+    RCLCPP_INFO(
+      get_node()->get_logger(), "║  ╰─ Transition ramp mass: [%f, %f, %f, %f, %f, %f]",
+      admittance_params_.transition_ramp_mass(0), admittance_params_.transition_ramp_mass(1),
+      admittance_params_.transition_ramp_mass(2), admittance_params_.transition_ramp_mass(3),
+      admittance_params_.transition_ramp_mass(4), admittance_params_.transition_ramp_mass(5));
   }
   else
   {
