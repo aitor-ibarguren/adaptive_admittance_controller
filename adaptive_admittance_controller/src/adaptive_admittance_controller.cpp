@@ -719,6 +719,8 @@ void AdaptiveAdmittanceController::admittance_params_callback(
   }
 
   // Admittance params
+  // Compliance frame
+  tf2::fromMsg(msg->compliance_frame, flange_H_compliance_frame_);
   // Stiffness
   admittance_params_.stiffness =
     Eigen::Map<Eigen::VectorXd>(msg->stiffness.data(), msg->stiffness.size());
@@ -739,7 +741,6 @@ void AdaptiveAdmittanceController::admittance_params_callback(
 
   // Update admittance control law
   update_admittance_params_ = true;
-  // admittance_control_law_->update_admittance_parameters(admittance_params_);
 
   // Manage feedback
   if (feedback_active_) feedback_msg_.admittance_params = *msg;
@@ -1037,7 +1038,6 @@ Eigen::Isometry3d AdaptiveAdmittanceController::get_tip_pose(
   // KDL to Eigen
   // Translation
   tip_pose.translation() = Eigen::Vector3d(kdl_pose.p.x(), kdl_pose.p.y(), kdl_pose.p.z());
-
   // Rotation
   for (int i = 0; i < 3; ++i)
     for (int j = 0; j < 3; ++j) tip_pose.linear()(i, j) = kdl_pose.M(i, j);
