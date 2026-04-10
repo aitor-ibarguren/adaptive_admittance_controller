@@ -643,6 +643,11 @@ controller_interface::return_type AdaptiveAdmittanceController::update_and_write
   // Manage feedback
   if (feedback_active_)
   {
+    // Update admittance parameters if ramp option active
+    if (admittance_params_.ramp_active)
+      admittance_control_law_->update_admittance_parameters_msg(feedback_msg_.admittance_params);
+
+    // Publish
     publish_feedback(
       wrench_, filtered_wrench_, wrench_in_compliance_frame, twist_in_compliance_frame);
   }
