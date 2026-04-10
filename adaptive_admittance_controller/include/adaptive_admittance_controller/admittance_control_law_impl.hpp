@@ -18,6 +18,9 @@
 // Eigen
 #include "Eigen/Geometry"
 
+// Msgs
+#include "adaptive_admittance_controller_msgs/msg/admittance_params.hpp"
+
 namespace admittance_controller
 {
 struct AdmittanceParams
@@ -203,6 +206,25 @@ public:
 
     // Return the admittance velocity (twist)
     return admittance_velocity_;
+  }
+
+  void update_admittance_parameters_msg(
+    adaptive_admittance_controller_msgs::msg::AdmittanceParams & admittance_params)
+  {
+    // Stiffness
+    Eigen::VectorXd stiffness = K_.diagonal();
+    admittance_params.stiffness =
+      std::vector<double>(stiffness.data(), stiffness.data() + stiffness.size());
+    // Damping
+    Eigen::VectorXd damping = D_.diagonal();
+    admittance_params.damping =
+      std::vector<double>(damping.data(), damping.data() + damping.size());
+    // Stiffness
+    Eigen::VectorXd mass = M_.diagonal();
+    admittance_params.mass = std::vector<double>(mass.data(), mass.data() + mass.size());
+    // Active axes
+    for (int i = 0; i < 6; i++)
+      admittance_params.active_axes[i] = static_cast<bool>(active_axes_(i, i));
   }
 
 private:
