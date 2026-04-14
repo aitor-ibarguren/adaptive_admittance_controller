@@ -13,6 +13,7 @@ The `admittance_controller/AdaptiveAdmittanceController` is a chainable ROS2 con
 - Chainable ROS2 controller designed to be placed as the last controller (e.g., after a *joint trajectory controller*).
 - Accepts admittance parameters (stiffness, damping, mass, wrench command, active axes, and compliance frame) as well as tool parameters (mass and center-of-gravity) through topics.
 - Includes a low-pass filter to smooth the wrench values received from the force/torque sensor.
+- During the admittance and tool paremeter modification, the recalibration of the force/torque sensor bias can be triggered.
 - The admittance control law calculates a twist value, which is internally computed to generate joint positions using **KDL** to generate the Jacobian matrix and **Eigen** to calculate the pseudo-inverse using *SVD*.
 - Allows an **open-loop** mode in which the previously commanded joint positions are used instead of the joint positions from the state interfaces, avoiding the injection of hardware feedback latency and transport delays into the command generation loop.
 - The controller enables the smoothing of admittance parameter modifications by adding a ramp to modify the parameters gradually (e.g., reducing the stiffness from 5000 to 500 over 1 second). These ramps are also applied when the admittance controller axes are activated/deactivated.
