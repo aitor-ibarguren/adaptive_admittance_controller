@@ -406,13 +406,18 @@ controller_interface::CallbackReturn AdaptiveAdmittanceController::on_activate(
 
   // Get current joint positions and velocities
   read_joint_state(joint_positions_, joint_velocities_);
+  // Clear reference interfeces since they use the last command from the previous activation.
+  for (auto & position_reference : position_reference_)
+    position_reference.get() = std::numeric_limits<double>::quiet_NaN();
+  for (auto & velocity_reference : velocity_reference_)
+    velocity_reference.get() = std::numeric_limits<double>::quiet_NaN();
   // Get current reference joint positions and velocities
   read_reference_joint_state(reference_joint_positions_, reference_joint_velocities_);
-  // Set commands to reference joint state
-  joint_position_commands_ = reference_joint_positions_;
-  joint_velocity_commands_ = reference_joint_velocities_;
-  joint_position_commands_prev_ = reference_joint_positions_;
-  joint_velocity_commands_prev_ = reference_joint_velocities_;
+  // Set commands to the measured joint state
+  joint_position_commands_ = joint_positions_;
+  joint_velocity_commands_ = joint_velocities_;
+  joint_position_commands_prev_ = joint_positions_;
+  joint_velocity_commands_prev_ = joint_velocities_;
 
   // F/T sensor
   force_torque_sensor_->assign_loaned_state_interfaces(state_interfaces_);
